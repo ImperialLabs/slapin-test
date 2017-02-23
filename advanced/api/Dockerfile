@@ -7,7 +7,7 @@ MAINTAINER SLAPI Devs
 LABEL "get"="get a key value from redis, `@bot api get key`"
 LABEL "save"="save data into redis `@bot api save key value`"
 
-RUN mkdir -p /parse && chmod 777 /api
+RUN mkdir -p /api && chmod 777 /api
 WORKDIR /api
 
 # Copy app into container
