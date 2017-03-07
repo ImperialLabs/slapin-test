@@ -1,0 +1,11 @@
+plugin:
+    type: container
+    language: ruby
+    listen_type: passive
+    data_type: all
+    help:
+      parse_all: "prints advanced data"
+    description: "Uses entire data package from chat"
+    config:
+      name: parse # Name of instance
+      Image: 'slapi/slapin-test:advanced' # Enter user/repo (standard docker pull procedures), you can also pull from a private repo via domain.com/repo

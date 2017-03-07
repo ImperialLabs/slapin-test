@@ -9,7 +9,7 @@ LABEL "parse"="parse all data from slack"
 RUN mkdir -p /parse && chmod 777 /parse
 WORKDIR /parse
 
-# Copy pager cli to container
+# Copy app to container
 COPY . ./
 
 ENTRYPOINT ["ruby", "/parse/parse.rb"]
