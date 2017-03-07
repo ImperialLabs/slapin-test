@@ -3,5 +3,5 @@
 if [ "${1}" == 'world' ]; then
     echo 'Hello World!'
 else
-    echo 'I dont like you'
+    echo 'No World!'
 fi
