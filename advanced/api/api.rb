@@ -22,25 +22,59 @@ class Slapin < Sinatra::Application
     raise 'missing type' unless params[:type]
     raise 'missing timestamp' unless params[:timestamp]
     raise 'missing command' unless params[:command]
-    get(params[:user], params[:command]) if params[:command] =~ /get/
-    save(params[:user], params[:command]) if params[:command] =~ /save/
-    hello_world(params[:user], params[:channel], params[:command]) if params[:command] =~ /hello_world/
+    @params = params
+    get if params[:command] =~ /get/
+    save if params[:command] =~ /save/
+    hello_world if params[:command] =~ /hello_world/
   end
 
   get '/info' do
-    # Info about plugin
+    {
+      help:
+        get: "Get info from brain, Search for all keys: `@bot get` - Search specific key for value: `@bot get $key`"
+        save: "Save info into brain: `@bot save $key $value`"
+        hello: "Hello World Command: `@bot hello world` returns `Hello World!`"
+    }.to_json
   end
 
-  def get(user, command)
-
-    HTTParty.get(@bot_url, headers: @headers)
+  def get
+    if @params[:command].include? ' '
+      command_arrary = @params[:command].split(' ')
+      return = get_value(command_arrary[1])
+    else
+      return = get_keys
+    end
+    speak('Search Return', 'Search Return', return)
   end
 
-  def save(user, command)
-    HTTParty.post(@bot_url, headers: @headers, body: body)
+  def get_keys
+    HTTParty.get(@bot_url + '/v1/query_hash', headers: @headers)
   end
 
-  def hello_world(user, command)
-    HTTParty.post(@bot_url, headers: @headers, body: body)
+  def get_value(key)
+    text_array = @params[:text].split(' ')
+    @headers['plugin'] = text_array[1]
+    @headers['key'] = key
+    HTTParty.get(@bot_url + '/v1/query_key', headers: @headers)
+  end
+
+  def save
+    command_arrary = @params[:command].split(' ')
+    HTTParty.post(@bot_url + '/v1/save', headers: @headers, body: body)
+  end
+
+  def hello_world
+    HTTParty.post(@bot_url + '/v1/speak', headers: @headers, body: {channel: @params[:channel], text: 'Hello World!'})
+  end
+
+  def speak(fallback, title, text)
+    body = {
+      channel: @params[:channel],
+      attachments:
+        fallback: fallback,
+        title: title,
+        text: text
+    }
+    HTTParty.post(@bot_url + '/v1/attachment', headers: @headers, body: body)
   end
 end
