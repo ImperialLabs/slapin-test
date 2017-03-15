@@ -2,20 +2,29 @@ FROM slapi/ruby:latest
 
 MAINTAINER SLAPI Devs
 
-# Use labels to create help commands
-# arg="description"
-LABEL "get"="get a key value from redis, `@bot api get key`"
-LABEL "save"="save data into redis `@bot api save key value`"
+ENV APP_HOME /api
 
-RUN mkdir -p /api && chmod 777 /api
+RUN mkdir -p $APP_HOME &&\
+    mkdir -p $APP_HOME/log
+
+RUN mkdir -p $APP_HOME && chmod 777 /api
+
 WORKDIR /api
+
+COPY supervisord.conf /etc/supervisor.d/supervisord.conf
 
 # Copy app into container
 COPY . ./
 
-# Install dependencies
-RUN gem install json
-RUN gem install sinatra
-RUN gem install httparty
+RUN apk update && apk add \
+    supervisor &&\
+    if [ -f Gemfile.lock ]; then rm -f Gemfile.lock; fi &&\
+    gem install json \
+    sinatra \
+    httparty &&\
+    rm -rf /var/cache/apk/* &&\
+    rm -rf /tmp/*
 
-ENTRYPOINT ["ruby", "/api/api.rb"]
+EXPOSE 8100
+
+CMD ["supervisord", "-c", "/etc/supervisor.d/supervisord.conf", "-n"]
