@@ -5,6 +5,12 @@
 
 ## Usage
 
+### Build Locally
+
+```bash
+docker build --tag=slapin_api ./
+```
+
 ### Run Externally
 
 ```bash
