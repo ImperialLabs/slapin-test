@@ -35,9 +35,11 @@ plugin:
   config:
     name: search # Name of instance
     Image: 'slapi/slapin_api' # Enter user/repo (standard docker pull procedures), you can also pull from a private repo via domain.com/repo
-    ExposedPorts: 8100 # Expose a port or a range of ports inside the container.
+    ExposedPorts: 4700 # Expose a port or a range of ports inside the container.
     PortBindings:
-      4700/tcp: [{ 'HostPort' => '4700', 'HostIp' => '0.0.0.0' }]
+      4700/tcp:
+        - HostPort: '4700'
+        - HostIp: '0.0.0.0'
     Tty: true # Set true/false for container TTY
     RestartPolicy: # https://docs.docker.com/engine/reference/run/#/restart-policies---restart
      Name: on-failure # no|always|unless-stopped are valid options. on-failure requires MaximumRetryCount

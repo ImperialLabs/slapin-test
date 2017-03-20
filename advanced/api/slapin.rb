@@ -15,22 +15,25 @@ class Slapin < Sinatra::Base
   config_file 'environments.yml'
   config_file 'api.yml'
 
-  @headers = {}
+  @headers = {
+    plugin: 'api',
+    key: ''
+  }
 
   @bot_url = ENV['BOT_URL'] ? ENV['BOT_URL'] : settings.bot_url
 
   post '/endpoint' do
-    raise 'missing user' unless params[:user]
-    raise 'missing channel' unless params[:channel]
-    raise 'missing type' unless params[:type]
-    raise 'missing timestamp' unless params[:timestamp]
+    raise 'missing user' unless params[:chat][:user]
+    raise 'missing channel' unless params[:chat][:channel]
+    raise 'missing type' unless params[:chat][:type]
+    raise 'missing timestamp' unless params[:chat][:timestamp]
     raise 'missing command' unless params[:command]
     @params = params
-    @command_array = @params[:command].split(' ')
-    @text_array = @params[:text].split(' ')
-    search if @command_array[0] == 'search'
-    save if @command_array[0] == 'save'
-    hello_world if @command_array[0] == 'hello'
+    @command = @params[:command]
+    @text_array = @params[:chat][:text].split(' ')
+    search if @command[0] == 'search'
+    save if @command[0] == 'save'
+    hello_world if @command[0] == 'hello'
   end
 
   get '/info' do
@@ -45,38 +48,35 @@ class Slapin < Sinatra::Base
   end
 
   def search
-    response = search_value if @params[:command].include? ' '
-    response = search_keys unless @params[:command].include? ' '
+    response = @command[1] ? search_value : search_keys
     speak('Search Return', 'Search Return', response)
   end
 
   def search_keys
-    @headers['plugin'] = @text_array[1]
-    HTTParty.get(@bot_url + '/v1/query_hash', headers: @headers)
+    HTTParty.get("http://#{@bot_url}/v1/query_hash", headers: @headers)
   end
 
   def search_value
-    @headers['plugin'] = @text_array[1]
-    @headers['key'] = @command_array[1]
-    HTTParty.get(@bot_url + '/v1/query_key', headers: @headers)
+    @headers[:key] = @command[1]
+    HTTParty.get("http://#{@bot_url}/v1/query_key", headers: @headers)
   end
 
   def save
     body = {
       plugin: @text_array[1],
-      key: @command_array[1],
-      value: @command_array[2]
+      key: @command[1],
+      value: @command[2]
     }
-    HTTParty.post(@bot_url + '/v1/save', headers: @headers, body: body)
+    HTTParty.post("http://#{@bot_url}/v1/save", headers: @headers, body: body)
   end
 
   def hello_world
-    HTTParty.post(@bot_url + '/v1/speak', headers: @headers, body: {channel: @params[:channel], text: 'Hello World!'})
+    HTTParty.post("http://#{@bot_url}/v1/speak", headers: @headers, body: {channel: @params[:chat][:channel], text: 'Hello World!'})
   end
 
   def speak(fallback, title, text)
     body = {
-      channel: @params[:channel],
+      channel: @params[:chat][:channel],
       attachments:
         {
           fallback: fallback,
@@ -84,6 +84,6 @@ class Slapin < Sinatra::Base
           text: text
         }
     }
-    HTTParty.post(@bot_url + '/v1/attachment', headers: @headers, body: body)
+    HTTParty.post("http://#{@bot_url}/v1/attachment", headers: @headers, body: body)
   end
 end
