@@ -104,7 +104,7 @@ class Slapin < Sinatra::Base
   end
 
   def save
-    PARTY.post(
+    response = PARTY.post(
       '/v1/save',
       body: {
         'plugin' => 'api',
@@ -113,5 +113,6 @@ class Slapin < Sinatra::Base
       },
       headers: @headers
     )
+    attachment('Data Saved', 'Data Saved', 'Data Save Successful') if response.success?
   end
 end
