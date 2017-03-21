@@ -63,6 +63,7 @@ class Slapin < Sinatra::Base
       },
       headers: @headers
     )
+    nil
   end
 
   def attachment(fallback, title, text)
