@@ -36,6 +36,7 @@ class Slapin < Sinatra::Base
     search if @command[0] == 'search'
     save if @command[0] == 'save'
     hello if @command[0] == 'hello'
+    status 404 if @command[0] == 'fail'
   end
 
   get '/info' do
