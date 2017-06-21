@@ -41,6 +41,7 @@ class Slapin < Sinatra::Base
 
   get '/info' do
     {
+      description: 'API Test Plugin',
       help:
         {
           search: 'Search info from brain, Search for all keys: `@bot api search` - Search specific key for value: `@bot api search $key`"',

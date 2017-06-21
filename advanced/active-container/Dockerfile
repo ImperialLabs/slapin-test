@@ -4,6 +4,7 @@ MAINTAINER SLAPI Devs
 
 # Use labels to create help commands
 # arg="description"
+LABEL "description"="Uses entire data package from chat"
 LABEL "parse"="parse all data from slack"
 
 RUN mkdir -p /parse && chmod 777 /parse && \
